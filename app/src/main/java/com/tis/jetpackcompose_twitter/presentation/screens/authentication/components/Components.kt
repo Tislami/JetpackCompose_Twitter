@@ -1,22 +1,19 @@
 package com.tis.jetpackcompose_twitter.presentation.screens.authentication
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import com.tis.jetpackcompose_twitter.utils.TAG
+import com.tis.jetpackcompose_twitter.utils.drawIndicatorLine
 import com.tis.jetpackcompose_twitter.utils.onClick
 
 
@@ -74,18 +71,45 @@ fun AuthTextButton(
     }
 }
 
-
-internal fun Modifier.clipPadding(padding: Dp): Modifier {
-    return layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        val paddingWidth = placeable.width - constraints.maxWidth
-        val width = constraints.maxWidth
-        val height = placeable.height
-        layout(width, height) {
-            val contentPlaceable = measurable.measure(
-                Constraints(maxWidth = width - paddingWidth + padding.roundToPx(), maxHeight = height)
-            )
-            contentPlaceable.placeRelative((-(padding/2).roundToPx()), 0)
+@Composable
+fun AuthTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String? = null,
+    icon: ImageVector? = null
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawIndicatorLine(BorderStroke(1.dp, Color.Black))
+            .height(64.dp),
+        decorationBox = { innerTextField ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onSecondary,
+                    )
+                }
+                Box{
+                    if (placeholder != null && value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = MaterialTheme.typography.button,
+                            color = MaterialTheme.colors.onSecondary
+                        )
+                    }
+                    innerTextField()
+                }
+            }
         }
-    }
+    )
 }
+
+

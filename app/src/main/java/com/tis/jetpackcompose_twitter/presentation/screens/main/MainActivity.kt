@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.tis.jetpackcompose_twitter.presentation.screens.authentication.login.LoginScreen
 import com.tis.jetpackcompose_twitter.presentation.screens.authentication.registration.RegistrationScreen
 import com.tis.jetpackcompose_twitter.presentation.ui.theme.JetpackCompose_TwitterTheme
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    RegistrationScreen()
+                    LoginScreen(rememberNavController())
                 }
             }
         }

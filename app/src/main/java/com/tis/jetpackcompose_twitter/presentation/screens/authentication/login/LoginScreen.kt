@@ -2,7 +2,6 @@ package com.tis.jetpackcompose_twitter.presentation.screens.authentication.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -10,22 +9,63 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.tis.jetpackcompose_twitter.presentation.screens.authentication.*
+import com.tis.jetpackcompose_twitter.utils.onClick
+import com.tis.jetpackcompose_twitter.utils.onValueChange
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: AuthViewModel = hiltViewModel(),
+) {
 
-    var a by remember { mutableStateOf("") }
-    var b by remember { mutableStateOf("") }
+    val scaffoldState = rememberScaffoldState()
+    val authState = viewModel.authState.value
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.loginEventFlow.collectLatest { event ->
+            when (event) {
+                is LoginEvent.Error -> {
+                    scaffoldState.snackbarHostState.showSnackbar(event.message)
+                }
+                LoginEvent.SignedIn -> {
+
+                }
+            }
+        }
+    }
+
+    Scaffold(scaffoldState = scaffoldState) {
+        LoginContent(
+            modifier = Modifier.padding(it),
+            authState = authState,
+            onEmailChange = viewModel::setEmail,
+            onPasswordChange = viewModel::setPassword,
+            onSignIn = viewModel::signIn,
+            onForgotPassword = {},
+            onSignUp = { }
+        )
+    }
+}
+
+@Composable
+private fun LoginContent(
+    modifier: Modifier = Modifier,
+    authState: AuthState,
+    onEmailChange: onValueChange,
+    onPasswordChange: onValueChange,
+    onSignIn: onClick,
+    onForgotPassword: onClick,
+    onSignUp: onClick,
+) {
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 32.dp)
             .background(
@@ -36,7 +76,7 @@ fun LoginScreen() {
     ) {
 
         Greeting(
-            modifier = Modifier.clipPadding(64.dp),
+            modifier = Modifier.clipToBounds(),
             title = "Hello \nWelcome Back"
         )
 
@@ -47,15 +87,15 @@ fun LoginScreen() {
         ) {
 
             AuthTextField(
-                value = a,
-                onValueChange = { a = it },
+                value = authState.email,
+                onValueChange = onEmailChange,
                 placeholder = "Email",
                 icon = Icons.Default.Email
             )
 
             AuthTextField(
-                value = b,
-                onValueChange = { b = it },
+                value = authState.password,
+                onValueChange = onPasswordChange,
                 placeholder = "Password",
                 icon = Icons.Default.Lock
             )
@@ -67,19 +107,21 @@ fun LoginScreen() {
         ) {
             AuthTextButton(
                 text = "Forgot Password?",
-                onClick = {}
+                onClick = onForgotPassword
             )
         }
 
 
         PrimaryButton(
             text = "Sign in",
-            onClick = {}
+            onClick = onSignIn
         )
 
-        Spacer(modifier = Modifier
-            .fillMaxHeight()
-            .weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
 
         Row(
             modifier = Modifier,
@@ -93,7 +135,7 @@ fun LoginScreen() {
 
             AuthTextButton(
                 text = "Sign up",
-                onClick = { }
+                onClick = onSignUp
             )
         }
     }

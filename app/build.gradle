@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.tis.jetpackcompose_twitter"
-        minSdk 24
+        minSdk 27
         targetSdk 33
         versionCode 1
         versionName "1.0"
