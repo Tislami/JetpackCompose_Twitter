@@ -13,10 +13,12 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tis.jetpackcompose_twitter.presentation.screens.authentication.*
+import com.tis.jetpackcompose_twitter.presentation.screens.authentication.navigation.AuthScreens
 import com.tis.jetpackcompose_twitter.utils.onClick
 import com.tis.jetpackcompose_twitter.utils.onValueChange
 import kotlinx.coroutines.flow.collectLatest
@@ -32,15 +34,11 @@ fun RegistrationScreen(
     val authState = viewModel.authState.value
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.registrationEventFlow.collectLatest { event ->
+        viewModel.authEventFlow.collectLatest { event ->
             when (event) {
-                is RegistrationEvent.Error -> {
-                    scaffoldState.snackbarHostState.showSnackbar(event.message)
-
-                }
-                RegistrationEvent.SignedUp -> {
-
-                }
+                is AuthUiEvent.Error -> TODO()
+                AuthUiEvent.SignedIn -> TODO()
+                AuthUiEvent.SignedUp -> TODO()
             }
         }
     }
@@ -53,7 +51,7 @@ fun RegistrationScreen(
             onPasswordChange = viewModel::setPassword,
             onFullNameChange = viewModel::setFullName,
             onSignUp = viewModel::signUp,
-            onSignIn = {  },
+            onSignIn = { navController.navigate(AuthScreens.Login.route) }
         )
     }
 }
@@ -81,9 +79,11 @@ private fun RegistrationContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        Greeting(
-            modifier = Modifier,
-            title = "Hello \nWelcome Back"
+        Text(
+            text = "Hello \nWelcome Back",
+            style = MaterialTheme.typography.h3,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
         )
 
 

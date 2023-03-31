@@ -23,15 +23,13 @@ class AuthViewModel @Inject constructor(private val useCase: UseCase) : ViewMode
     private var loginJob: Job? = null
     val isLoading = mutableStateOf(false)
 
-    private val _loginEventFlow = MutableSharedFlow<LoginEvent>()
-    val loginEventFlow = _loginEventFlow.asSharedFlow()
+    private val _authEventFlow = MutableSharedFlow<AuthUiEvent>()
+    val authEventFlow = _authEventFlow.asSharedFlow()
 
 
-    private val _registrationEventFlow = MutableSharedFlow<RegistrationEvent>()
-    val registrationEventFlow = _registrationEventFlow.asSharedFlow()
-
-
-
+    init {
+        getAuthState()
+    }
     fun setEmail(value: String) {
         authState.value = authState.value.copy(
             email = value
@@ -58,14 +56,14 @@ class AuthViewModel @Inject constructor(private val useCase: UseCase) : ViewMode
                     when (response) {
                         is Response.Error -> {
                             isLoading.value = false
-                            _loginEventFlow.emit(LoginEvent.Error(response.message))
+                            _authEventFlow.emit(AuthUiEvent.Error(response.message))
                         }
                         is Response.Loading -> {
                             isLoading.value = true
                         }
                         is Response.Success -> {
                             isLoading.value = false
-                            _loginEventFlow.emit(LoginEvent.SignedIn)
+                            _authEventFlow.emit(AuthUiEvent.SignedIn)
                         }
                     }
                 }
@@ -79,14 +77,35 @@ class AuthViewModel @Inject constructor(private val useCase: UseCase) : ViewMode
                     when (response) {
                         is Response.Error -> {
                             isLoading.value = false
-                            _registrationEventFlow.emit(RegistrationEvent.Error(response.message))
+                            _authEventFlow.emit(AuthUiEvent.Error(response.message))
                         }
                         is Response.Loading -> {
                             isLoading.value = true
                         }
                         is Response.Success -> {
                             isLoading.value = false
-                            _registrationEventFlow.emit(RegistrationEvent.SignedUp)
+                            _authEventFlow.emit(AuthUiEvent.SignedUp)
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun getAuthState() {
+        viewModelScope.launch {
+            useCase.authUseCase.createUser(authState.value.email, authState.value.password)
+                .collect { response ->
+                    when (response) {
+                        is Response.Error -> {
+                            isLoading.value = false
+                            _authEventFlow.emit(AuthUiEvent.Error(response.message))
+                        }
+                        is Response.Loading -> {
+                            isLoading.value = true
+                        }
+                        is Response.Success -> {
+                            isLoading.value = false
+                            _authEventFlow.emit(AuthUiEvent.SignedUp)
                         }
                     }
                 }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.tasks.await
 interface AuthRepository {
     fun createUser(email: String, password: String): Flow<Response<String>>
     fun login(email: String, password: String): Flow<Response<String>>
-    fun getAuthState(): Flow<Response<Boolean>>
+    fun getAuthState(): Flow<Response<String?>>
 }
 
 class AuthRepositoryImpl(private val auth: FirebaseAuth) : AuthRepository {
@@ -50,8 +50,12 @@ class AuthRepositoryImpl(private val auth: FirebaseAuth) : AuthRepository {
     override fun getAuthState() = flow {
         try {
             emit(Response.Loading)
-            val result = Response.Success(true)
-            emit(result)
+            if (auth.currentUser!=null){
+                emit(Response.Success(auth.currentUser!!.uid))
+            }
+            else {
+                emit(Response.Success(null))
+            }
         }
         catch (e:Exception){
             emit(Response.Error(e.message?:"Unknown"))
